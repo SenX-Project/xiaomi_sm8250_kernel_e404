@@ -93,6 +93,23 @@ send_changelog() {
     send_msg "<b>Changelog(s):</b>%0A<code>$CHANGELOG</code>"
 }
 
+run_nextpatch() {
+    echo "--- Running KernelSU-Next patch ---"
+    if [[ -f "$KERNEL_DIR/nextpatch.sh" ]]; then
+        bash "$KERNEL_DIR/nextpatch.sh"
+    else
+        # Inline fallback (same logic as nextpatch.sh in the commit)
+        rm -rf "$KERNEL_DIR/KernelSU-Next"
+        curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -s legacy
+    fi
+
+    if [[ $? -ne 0 ]]; then
+        echo "--- ! KernelSU-Next patch failed ! ---"
+        exit 1
+    fi
+    echo "--- KernelSU-Next patch done ---"
+}
+
 # Arrays to support multi-device target
 TARGETS=()
 DEFCONFIGS=()
@@ -230,8 +247,10 @@ if [[ $# -gt 0 ]]; then
     [[ ${#TARGETS[@]} -eq 0 ]] && echo "--- ! Invalid devices ! ---" && exit 1
 
     rm -f "$LOG_FILE"
-    rm -rf "$OUT_DIR"
     mkdir -p "$OUT_DIR"
+
+    # Run KernelSU-Next patch before building
+    run_nextpatch
 
     FAIL=0
     for i in "${!TARGETS[@]}"; do
