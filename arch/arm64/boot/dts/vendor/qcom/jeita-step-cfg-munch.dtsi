@@ -12,7 +12,7 @@
 
 qcom,munch {
 	/* j1 jeita, step charge and other important charging parameters */
-	qcom,fastchg-current-ma = <2000>;
+	qcom,fastchg-current-ma = <3000>;
 	qcom,jeita-fcc-ranges = <(-100)  0  1000000
 				1  50    2200000
 				51  100  3080000
